@@ -12,19 +12,27 @@ let db; // Объявляем db в глобальной области види
 
 const initializeDatabase = async () => {
     try {
+        console.log("🔄 Loading database models...");
+        
+        // Загружаем модели по одной для диагностики
         db = require("./app/models");
         console.log("✅ Database models loaded");
+        
+        // Проверяем что все модели загружены
+        console.log("📋 Loaded models:", Object.keys(db).filter(key => !['Sequelize', 'sequelize'].includes(key)));
         
         await db.sequelize.authenticate();
         console.log("✅ Database connection established");
         
         // Sync models
-        await db.sequelize.sync();
+        console.log("🔄 Synchronizing database...");
+        await db.sequelize.sync({ force: false });
         console.log("✅ Database synchronized");
         
         return db;
     } catch (error) {
         console.log("❌ Database error:", error.message);
+        console.log("🔍 Error stack:", error.stack);
         return null;
     }
 };
@@ -34,7 +42,7 @@ app.get("/", (req, res) => {
     res.json({ 
         message: "Welcome to auto-showroom!",
         status: "Online",
-        database: "Connected"
+        database: db ? "Connected" : "Disconnected"
     });
 });
 
@@ -72,10 +80,22 @@ app.post("/api/cars", async (req, res) => {
 });
 
 // Start server after DB initialization
-initializeDatabase().then(() => {
-    app.listen(PORT, '0.0.0.0', () => {
-        console.log(`🚀 Server is running on port ${PORT}`);
-        console.log(`📍 http://localhost:8080`);
-        console.log(`🚗 API автомобилей: http://localhost:8080/api/cars`);
-    });
+console.log("🚀 Starting server initialization...");
+initializeDatabase().then((database) => {
+    if (database) {
+        app.listen(PORT, '0.0.0.0', () => {
+            console.log(`🎉 Server is running on port ${PORT}`);
+            console.log(`📍 http://localhost:${PORT}`);
+            console.log(`🚗 API автомобилей: http://localhost:${PORT}/api/cars`);
+        });
+    } else {
+        console.log("❌ Server started WITHOUT database connection");
+        app.listen(PORT, '0.0.0.0', () => {
+            console.log(`⚠️  Server is running on port ${PORT} (NO DATABASE)`);
+            console.log(`📍 http://localhost:${PORT}`);
+        });
+    }
+}).catch(error => {
+    console.log("💥 Critical error during startup:", error);
+    process.exit(1);
 });

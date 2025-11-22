@@ -1,28 +1,47 @@
-const dbConfig = require("../config/db.config.js");
-const Sequelize = require("sequelize");
-const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
-    host: dbConfig.HOST,
-    dialect: dbConfig.dialect,
-    operatorsAliases: false,
-    pool: {
-        max: dbConfig.pool.max,
-        min: dbConfig.pool.min,
-        acquire: dbConfig.pool.acquire,
-        idle: dbConfig.pool.idle
-    }
-});
-
-const db = {};
-db.Sequelize = Sequelize;
-db.sequelize = sequelize;
-
-db.cars = require("./car.model.js")(sequelize, Sequelize);
-db.categories = require("./category.model.js")(sequelize, Sequelize);
-db.clients = require("./client.model.js")(sequelize, Sequelize);
-db.managers = require("./manager.model.js")(sequelize, Sequelize);
-db.orders = require("./order.model.js")(sequelize, Sequelize);
-db.orderitems = require('./orderitem.model.js')(sequelize, Sequelize);
-
-require('./references.model.js')(db);
-
-module.exports = db;
+module.exports = (sequelize, Sequelize) => {
+    const Car = sequelize.define("car", {
+        carCode: {
+            type: Sequelize.INTEGER,
+            primaryKey: true,
+            autoIncrement: true
+        },
+        vin: {
+            type: Sequelize.STRING(17),
+            allowNull: false,
+            unique: true
+        },
+        brand: {
+            type: Sequelize.STRING,
+            allowNull: false
+        },
+        model: {
+            type: Sequelize.STRING,
+            allowNull: false
+        },
+        year: {
+            type: Sequelize.INTEGER,
+            allowNull: false
+        },
+        color: {
+            type: Sequelize.STRING,
+            allowNull: false
+        },
+        condition: {
+            type: Sequelize.STRING,
+            allowNull: false,
+            defaultValue: "Новый"
+        },
+        purchasePrice: {
+            type: Sequelize.DECIMAL(10, 2),
+            allowNull: false
+        },
+        categoryCode: {
+            type: Sequelize.INTEGER,
+            allowNull: false
+        }
+    }, {
+        tableName: 'cars',
+        timestamps: true
+    });
+    return Car;
+};
