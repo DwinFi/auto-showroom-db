@@ -22,7 +22,7 @@ services:
     depends_on:
       - postgresdb
     build: 
-      context: ./trade-app
+      context: ./car
       dockerfile: Dockerfile
     container_name: trade-app
     restart: unless-stopped
