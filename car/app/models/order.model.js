@@ -18,10 +18,32 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.STRING,
             allowNull: false,
             defaultValue: 'Оформлен'
+        },
+        clientCode: {
+            type: Sequelize.INTEGER,
+            allowNull: true
+        },
+        managerCode: {
+            type: Sequelize.INTEGER,
+            allowNull: true
+        },
+        createdAt: {
+            type: Sequelize.DATE,
+            allowNull: false,
+            field: 'createdAt'
+        },
+        updatedAt: {
+            type: Sequelize.DATE,
+            allowNull: false,
+            field: 'updatedAt'
         }
     }, {
         tableName: 'orders',
-        timestamps: true
+        timestamps: true,
+        createdAt: 'createdAt',
+        updatedAt: 'updatedAt',
+        freezeTableName: true,
+        underscored: false
     });
     return Order;
 };

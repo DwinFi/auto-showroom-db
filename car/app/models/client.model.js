@@ -16,10 +16,24 @@ module.exports = (sequelize, Sequelize) => {
         passportData: {
             type: Sequelize.STRING,
             allowNull: false
+        },
+        createdAt: {
+            type: Sequelize.DATE,
+            allowNull: false,
+            field: 'createdAt'
+        },
+        updatedAt: {
+            type: Sequelize.DATE,
+            allowNull: false,
+            field: 'updatedAt'
         }
     }, {
         tableName: 'clients',
-        timestamps: true
+        timestamps: true,  // Sequelize будет автоматически управлять полями
+        createdAt: 'createdAt',
+        updatedAt: 'updatedAt',
+        freezeTableName: true,
+        underscored: false
     });
     return Client;
 };

@@ -16,7 +16,9 @@ module.exports = (sequelize, Sequelize) => {
         }
     }, {
         tableName: 'categories',
-        timestamps: true
+        timestamps: false,
+        freezeTableName: true,
+        underscored: false
     });
     return Category;
 };

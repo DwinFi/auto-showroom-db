@@ -12,10 +12,24 @@ module.exports = (sequelize, Sequelize) => {
         phone: {
             type: Sequelize.STRING,
             allowNull: false
+        },
+        createdAt: {
+            type: Sequelize.DATE,
+            allowNull: false,
+            field: 'createdAt'
+        },
+        updatedAt: {
+            type: Sequelize.DATE,
+            allowNull: false,
+            field: 'updatedAt'
         }
     }, {
         tableName: 'managers',
-        timestamps: true
+        timestamps: true,
+        createdAt: 'createdAt',
+        updatedAt: 'updatedAt',
+        freezeTableName: true,
+        underscored: false
     });
     return Manager;
 };
