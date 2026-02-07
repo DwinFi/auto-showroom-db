@@ -19,7 +19,7 @@ const initializeDatabase = async () => {
         await db.sequelize.authenticate();
         console.log("✅ Database connection established");
         
-        await db.sequelize.sync({ force: false });
+        await db.sequelize.sync();
         console.log("✅ Database synchronized");
         
         return db;
@@ -36,6 +36,7 @@ require("./app/routes/client.routes")(app);
 require("./app/routes/manager.routes")(app);
 require("./app/routes/order.routes")(app);
 require("./app/routes/orderitem.routes")(app);
+require("./app/routes/debug.routes")(app);
 
 // Главная страница с информацией о всех endpoint
 app.get("/", (req, res) => {

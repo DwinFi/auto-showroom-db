@@ -1,178 +1,141 @@
 const db = require("../models");
 const Car = db.cars;
-const Op = db.Sequelize.Op;
+const Category = db.categories;
+const sequelize = db.sequelize;
+const { QueryTypes } = db.Sequelize;
 
-// Создание и сохранение нового автомобиля
-exports.create = (req, res) => {
-    console.log("📥 Получен запрос на создание автомобиля:", JSON.stringify(req.body));
-    
-    // Валидация запроса
-    if (!req.body.brand || !req.body.model || !req.body.vin) {
-        console.log("❌ Валидация не пройдена: отсутствуют обязательные поля");
-        res.status(400).send({
-            message: "Содержимое не может быть пустым! Обязательные поля: brand, model, vin"
-        });
-        return;
+// ================= CRUD =================
+
+exports.create = async (req, res) => {
+  try {
+    const car = await Car.create(req.body);
+    res.status(201).json(car);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+exports.findAll = async (req, res) => {
+  try {
+    const cars = await Car.findAll();
+    res.json(cars);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+exports.findOne = async (req, res) => {
+  try {
+    const carCode = req.params.id;
+    const car = await Car.findByPk(carCode);
+
+    if (!car) {
+      return res.status(404).json({ message: "Автомобиль не найден" });
     }
 
-    // Создание автомобиля
-    const car = {
-        vin: req.body.vin,
-        brand: req.body.brand,
-        model: req.body.model,
-        year: req.body.year || 2024,
-        color: req.body.color || "Не указан",
-        condition: req.body.condition || "Новый",
-        purchasePrice: req.body.purchasePrice || 0,
-        categoryCode: req.body.categoryCode || null  // Разрешаем null
-    };
-
-    console.log("🔧 Создаваемый объект автомобиля:", car);
-
-    // Сохранение автомобиля в базе данных
-    Car.create(car)
-        .then(data => {
-            console.log("✅ Автомобиль успешно создан:", data.toJSON());
-            res.send(data);
-        })
-        .catch(err => {
-            console.error("❌ Ошибка при создании автомобиля:", err);
-            console.error("Детали ошибки:", err.message);
-            console.error("Стек ошибки:", err.stack);
-            
-            res.status(500).send({
-                message: "Ошибка при создании автомобиля: " + err.message
-            });
-        });
+    res.json(car);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
 
-// Получение всех автомобилей из базы данных
-exports.findAll = (req, res) => {
-    console.log("📥 Получен запрос на получение всех автомобилей");
-    
-    const brand = req.query.brand;
-    var condition = brand ? { brand: { [Op.like]: `%${brand}%` } } : null;
+exports.update = async (req, res) => {
+  try {
+    const carCode = req.params.id;
 
-    Car.findAll({ 
-        where: condition, 
-        include: ["category"] 
-    })
-        .then(data => {
-            console.log(`✅ Найдено ${data.length} автомобилей`);
-            res.send(data);
-        })
-        .catch(err => {
-            console.error("❌ Ошибка при получении автомобилей:", err);
-            res.status(500).send({
-                message: err.message || "Произошла ошибка при получении автомобилей."
-            });
-        });
+    const result = await Car.update(req.body, {
+      where: { carCode }
+    });
+
+    if (result[0] === 0) {
+      return res.status(404).json({ message: "Автомобиль не найден" });
+    }
+
+    res.json({ message: "Автомобиль обновлён" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
 
-// Найти один автомобиль по идентификатору
-exports.findOne = (req, res) => {
-    const id = req.params.id;
-    console.log(`📥 Получен запрос на получение автомобиля с ID=${id}`);
+exports.delete = async (req, res) => {
+  try {
+    const carCode = req.params.id;
 
-    Car.findByPk(id, { 
-        include: ["category"] 
-    })
-        .then(data => {
-            if (data) {
-                console.log("✅ Автомобиль найден:", data.toJSON());
-                res.send(data);
-            } else {
-                console.log(`❌ Автомобиль с ID=${id} не найден`);
-                res.status(404).send({
-                    message: `Не найден автомобиль с id=${id}.`
-                });
-            }
-        })
-        .catch(err => {
-            console.error(`❌ Ошибка при получении автомобиля с ID=${id}:`, err);
-            res.status(500).send({
-                message: "Ошибка при получении автомобиля с id=" + id
-            });
-        });
+    const result = await Car.destroy({
+      where: { carCode }
+    });
+
+    if (!result) {
+      return res.status(404).json({ message: "Автомобиль не найден" });
+    }
+
+    res.json({ message: "Автомобиль удалён" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
 
-// Обновление автомобиля по идентификатору в запросе
-exports.update = (req, res) => {
-    const id = req.params.id;
-    console.log(`📥 Получен запрос на обновление автомобиля с ID=${id}`);
-    console.log("📝 Данные для обновления:", req.body);
-
-    Car.update(req.body, {
-        where: { carCode: id }
-    })
-        .then(num => {
-            if (num == 1) {
-                console.log(`✅ Автомобиль с ID=${id} успешно обновлен`);
-                res.send({
-                    message: "Автомобиль был успешно обновлен."
-                });
-            } else {
-                console.log(`❌ Не удалось обновить автомобиль с ID=${id}`);
-                res.send({
-                    message: `Невозможно обновить автомобиль с id=${id}. Возможно, автомобиль не найден или req.body пуст!`
-                });
-            }
-        })
-        .catch(err => {
-            console.error(`❌ Ошибка при обновлении автомобиля с ID=${id}:`, err);
-            res.status(500).send({
-                message: "Ошибка при обновлении автомобиля с id=" + id
-            });
-        });
+exports.deleteAll = async (req, res) => {
+  try {
+    await Car.destroy({ where: {}, truncate: true });
+    res.json({ message: "Все автомобили удалены" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
 
-// Удаление автомобиля с указанным идентификатором в запросе
-exports.delete = (req, res) => {
-    const id = req.params.id;
-    console.log(`📥 Получен запрос на удаление автомобиля с ID=${id}`);
+// ================= ЛР-12 =================
 
-    Car.destroy({
-        where: { carCode: id }
-    })
-        .then(num => {
-            if (num == 1) {
-                console.log(`✅ Автомобиль с ID=${id} успешно удален`);
-                res.send({
-                    message: "Автомобиль был успешно удален!"
-                });
-            } else {
-                console.log(`❌ Не удалось удалить автомобиль с ID=${id}`);
-                res.send({
-                    message: `Невозможно удалить автомобиль с id=${id}. Возможно, автомобиль не найден!`
-                });
-            }
-        })
-        .catch(err => {
-            console.error(`❌ Ошибка при удалении автомобиля с ID=${id}:`, err);
-            res.status(500).send({
-                message: "Не удалось удалить автомобиль с id=" + id
-            });
-        });
+// 🔹 RAW SQL — название категории
+exports.getCarCategoryName = async (req, res) => {
+  try {
+    const carCode = req.params.id;
+
+    const result = await sequelize.query(
+      `
+      SELECT c.name
+      FROM categories c
+      JOIN cars a ON a."categoryCode" = c."categoryCode"
+      WHERE a."carCode" = :carCode
+      `,
+      {
+        replacements: { carCode },
+        type: QueryTypes.SELECT
+      }
+    );
+
+    if (result.length === 0) {
+      return res.status(404).json({
+        message: "Категория для данного автомобиля не найдена"
+      });
+    }
+
+    res.json({ categoryName: result[0].name });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
 
-// Удаление всех автомобилей из базы данных
-exports.deleteAll = (req, res) => {
-    console.log("⚠️ Получен запрос на удаление ВСЕХ автомобилей");
+// 🔹 Sequelize — объект категории
+exports.getCarCategory = async (req, res) => {
+  try {
+    const carCode = req.params.id;
 
-    Car.destroy({
-        where: {},
-        truncate: false
-    })
-        .then(nums => {
-            console.log(`✅ Удалено ${nums} автомобилей`);
-            res.send({ 
-                message: `${nums} автомобилей были успешно удалены!` 
-            });
-        })
-        .catch(err => {
-            console.error("❌ Ошибка при удалении всех автомобилей:", err);
-            res.status(500).send({
-                message: err.message || "Произошла ошибка при удалении всех автомобилей."
-            });
-        });
+    const car = await Car.findByPk(carCode, {
+      include: {
+        model: Category,
+        attributes: ["categoryCode", "name"]
+      }
+    });
+
+    if (!car || !car.category) {
+      return res.status(404).json({
+        message: "Категория для данного автомобиля не найдена"
+      });
+    }
+
+    res.json(car.category);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
