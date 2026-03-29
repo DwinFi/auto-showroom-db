@@ -1,23 +1,117 @@
 module.exports = app => {
     const clients = require("../controllers/client.controller.js");
-    var router = require("express").Router();
+    const router = require("express").Router();
 
-    // Создать нового клиента
+    /**
+     * @swagger
+     * tags:
+     *   name: Clients
+     *   description: Client management API
+     */
+
+    /**
+     * @swagger
+     * /api/clients:
+     *   post:
+     *     summary: Create a new client
+     *     tags: [Clients]
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             properties:
+     *               name:
+     *                 type: string
+     *               email:
+     *                 type: string
+     *     responses:
+     *       201:
+     *         description: Client created
+     */
     router.post("/", clients.create);
 
-    // Получить всех клиентов
+    /**
+     * @swagger
+     * /api/clients:
+     *   get:
+     *     summary: Get all clients
+     *     tags: [Clients]
+     *     responses:
+     *       200:
+     *         description: List of clients
+     */
     router.get("/", clients.findAll);
 
-    // Получить одного клиента по id
+    /**
+     * @swagger
+     * /api/clients/{id}:
+     *   get:
+     *     summary: Get client by ID
+     *     tags: [Clients]
+     *     parameters:
+     *       - in: path
+     *         name: id
+     *         required: true
+     *         schema:
+     *           type: integer
+     *     responses:
+     *       200:
+     *         description: Client found
+     *       404:
+     *         description: Client not found
+     */
     router.get("/:id", clients.findOne);
 
-    // Обновить клиента по id
+    /**
+     * @swagger
+     * /api/clients/{id}:
+     *   put:
+     *     summary: Update client by ID
+     *     tags: [Clients]
+     *     parameters:
+     *       - in: path
+     *         name: id
+     *         required: true
+     *         schema:
+     *           type: integer
+     *     requestBody:
+     *       required: true
+     *     responses:
+     *       200:
+     *         description: Client updated
+     */
     router.put("/:id", clients.update);
 
-    // Удалить клиента по id
+    /**
+     * @swagger
+     * /api/clients/{id}:
+     *   delete:
+     *     summary: Delete client by ID
+     *     tags: [Clients]
+     *     parameters:
+     *       - in: path
+     *         name: id
+     *         required: true
+     *         schema:
+     *           type: integer
+     *     responses:
+     *       200:
+     *         description: Client deleted
+     */
     router.delete("/:id", clients.delete);
 
-    // Удалить всех клиентов
+    /**
+     * @swagger
+     * /api/clients:
+     *   delete:
+     *     summary: Delete all clients
+     *     tags: [Clients]
+     *     responses:
+     *       200:
+     *         description: All clients deleted
+     */
     router.delete("/", clients.deleteAll);
 
     app.use('/api/clients', router);

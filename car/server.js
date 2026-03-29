@@ -1,10 +1,34 @@
 require('dotenv').config();
 const express = require("express");
+const swaggerUi = require("swagger-ui-express");
+const swaggerJsDoc = require("swagger-jsdoc");
+
 const app = express();
 const PORT = process.env.PORT || 8080;
 
 // Middleware
 app.use(express.json());
+
+// ===== Swagger configuration =====
+const swaggerOptions = {
+    definition: {
+        openapi: "3.0.0",
+        info: {
+            title: "Car Dealership API",
+            version: "1.0.0",
+            description: "API documentation for Car Dealership project (Lab 13)",
+        },
+        servers: [
+            {
+                url: "http://localhost:8080",
+            },
+        ],
+    },
+    apis: ["./app/routes/*.js"], // путь к маршрутам
+};
+
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // Database connection
 let db;
@@ -29,7 +53,7 @@ const initializeDatabase = async () => {
     }
 };
 
-// Регистрация ВСЕХ маршрутов из файлов routes
+// Регистрация маршрутов
 require("./app/routes/car.routes")(app);
 require("./app/routes/category.routes")(app);
 require("./app/routes/client.routes")(app);
@@ -38,28 +62,27 @@ require("./app/routes/order.routes")(app);
 require("./app/routes/orderitem.routes")(app);
 require("./app/routes/debug.routes")(app);
 
-// Главная страница с информацией о всех endpoint
+// Главная страница
 app.get("/", (req, res) => {
     res.json({ 
         message: "Добро пожаловать в автосалон!",
         status: "Online",
         database: db ? "Connected" : "Disconnected",
+        swagger_docs: `http://localhost:${PORT}/api-docs`,
         available_endpoints: [
-            "GET /api/cars - Получить все автомобили",
-            "POST /api/cars - Создать новый автомобиль", 
-            "GET /api/cars/:id - Получить автомобиль по ID",
-            "PUT /api/cars/:id - Обновить автомобиль по ID",
-            "DELETE /api/cars/:id - Удалить автомобиль по ID",
-            "DELETE /api/cars - Удалить все автомобили",
-            "GET /api/categories - Получить все категории",
-            "POST /api/categories - Создать новую категорию",
-            "GET /api/categories/:id - Получить категорию по ID",
-            "GET /api/clients - Получить всех клиентов",
-            "POST /api/clients - Создать нового клиента",
-            "GET /api/managers - Получить всех менеджеров",
-            "POST /api/managers - Создать нового менеджера",
-            "GET /api/orders - Получить все заказы",
-            "POST /api/orders - Создать новый заказ"
+            "GET /api/cars",
+            "POST /api/cars",
+            "GET /api/cars/:id",
+            "PUT /api/cars/:id",
+            "DELETE /api/cars/:id",
+            "GET /api/categories",
+            "POST /api/categories",
+            "GET /api/clients",
+            "POST /api/clients",
+            "GET /api/managers",
+            "POST /api/managers",
+            "GET /api/orders",
+            "POST /api/orders"
         ]
     });
 });
@@ -71,11 +94,7 @@ initializeDatabase().then((database) => {
         app.listen(PORT, '0.0.0.0', () => {
             console.log(`🎉 Сервер запущен на порту ${PORT}`);
             console.log(`📍 Основной URL: http://localhost:${PORT}`);
-            console.log(`🚗 API автомобилей: http://localhost:${PORT}/api/cars`);
-            console.log(`📂 API категорий: http://localhost:${PORT}/api/categories`);
-            console.log(`👥 API клиентов: http://localhost:${PORT}/api/clients`);
-            console.log(`👨‍💼 API менеджеров: http://localhost:${PORT}/api/managers`);
-            console.log(`📋 API заказов: http://localhost:${PORT}/api/orders`);
+            console.log(`📘 Swagger: http://localhost:${PORT}/api-docs`);
         });
     } else {
         console.log("❌ Server started WITHOUT database connection");

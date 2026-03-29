@@ -1,23 +1,72 @@
 module.exports = app => {
     const orderitems = require("../controllers/orderitem.controller.js");
-    var router = require("express").Router();
+    const router = require("express").Router();
 
-    // Создать новую позицию заказа
+    /**
+     * @swagger
+     * tags:
+     *   name: OrderItems
+     *   description: Order item management API
+     */
+
+    /**
+     * @swagger
+     * /api/orderitems:
+     *   post:
+     *     summary: Create a new order item
+     *     tags: [OrderItems]
+     */
     router.post("/", orderitems.create);
 
-    // Получить все позиции заказа
+    /**
+     * @swagger
+     * /api/orderitems:
+     *   get:
+     *     summary: Get all order items
+     *     tags: [OrderItems]
+     */
     router.get("/", orderitems.findAll);
 
-    // Получить одну позицию заказа по id
+    /**
+     * @swagger
+     * /api/orderitems/{id}:
+     *   get:
+     *     summary: Get order item by ID
+     *     tags: [OrderItems]
+     *     parameters:
+     *       - in: path
+     *         name: id
+     *         required: true
+     *         schema:
+     *           type: integer
+     */
     router.get("/:id", orderitems.findOne);
 
-    // Обновить позицию заказа по id
+    /**
+     * @swagger
+     * /api/orderitems/{id}:
+     *   put:
+     *     summary: Update order item by ID
+     *     tags: [OrderItems]
+     */
     router.put("/:id", orderitems.update);
 
-    // Удалить позицию заказа по id
+    /**
+     * @swagger
+     * /api/orderitems/{id}:
+     *   delete:
+     *     summary: Delete order item by ID
+     *     tags: [OrderItems]
+     */
     router.delete("/:id", orderitems.delete);
 
-    // Удалить все позиции заказа
+    /**
+     * @swagger
+     * /api/orderitems:
+     *   delete:
+     *     summary: Delete all order items
+     *     tags: [OrderItems]
+     */
     router.delete("/", orderitems.deleteAll);
 
     app.use('/api/orderitems', router);
