@@ -14,9 +14,9 @@ const swaggerOptions = {
     definition: {
         openapi: "3.0.0",
         info: {
-            title: "Car Dealership API",
+            title: "Moto Showroom API",
             version: "1.0.0",
-            description: "API documentation for Car Dealership project (Lab 13)",
+            description: "API documentation for Moto Showroom project",
         },
         servers: [
             {
@@ -24,7 +24,16 @@ const swaggerOptions = {
             },
         ],
     },
-    apis: ["./app/routes/*.js"], // путь к маршрутам
+    apis: [
+        "./app/routes/motorcycle.routes.js",
+        "./app/routes/manufacturer.routes.js",
+        "./app/routes/category.routes.js",
+        "./app/routes/client.routes.js",
+        "./app/routes/manager.routes.js",
+        "./app/routes/order.routes.js",
+        "./app/routes/orderitem.routes.js",
+        "./app/routes/debug.routes.js"
+    ],
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
@@ -38,14 +47,17 @@ const initializeDatabase = async () => {
         console.log("🔄 Loading database models...");
         db = require("./app/models");
         console.log("✅ Database models loaded");
-        console.log("📋 Loaded models:", Object.keys(db).filter(key => !['Sequelize', 'sequelize'].includes(key)));
-        
+        console.log(
+            "📋 Loaded models:",
+            Object.keys(db).filter(key => !['Sequelize', 'sequelize'].includes(key))
+        );
+
         await db.sequelize.authenticate();
         console.log("✅ Database connection established");
-        
+
         await db.sequelize.sync();
         console.log("✅ Database synchronized");
-        
+
         return db;
     } catch (error) {
         console.log("❌ Database error:", error.message);
@@ -54,7 +66,8 @@ const initializeDatabase = async () => {
 };
 
 // Регистрация маршрутов
-require("./app/routes/car.routes")(app);
+require("./app/routes/motorcycle.routes")(app);
+require("./app/routes/manufacturer.routes")(app);
 require("./app/routes/category.routes")(app);
 require("./app/routes/client.routes")(app);
 require("./app/routes/manager.routes")(app);
@@ -64,25 +77,57 @@ require("./app/routes/debug.routes")(app);
 
 // Главная страница
 app.get("/", (req, res) => {
-    res.json({ 
-        message: "Добро пожаловать в автосалон!",
+    res.json({
+        message: "Добро пожаловать в мотосалон!",
         status: "Online",
         database: db ? "Connected" : "Disconnected",
         swagger_docs: `http://localhost:${PORT}/api-docs`,
         available_endpoints: [
-            "GET /api/cars",
-            "POST /api/cars",
-            "GET /api/cars/:id",
-            "PUT /api/cars/:id",
-            "DELETE /api/cars/:id",
+            "GET /api/motorcycles",
+            "POST /api/motorcycles",
+            "GET /api/motorcycles/:id",
+            "PUT /api/motorcycles/:id",
+            "DELETE /api/motorcycles/:id",
+            "GET /api/motorcycles/:id/category",
+            "GET /api/motorcycles/:id/categoryname",
+
+            "GET /api/manufacturers",
+            "POST /api/manufacturers",
+            "GET /api/manufacturers/:id",
+            "PUT /api/manufacturers/:id",
+            "DELETE /api/manufacturers/:id",
+
             "GET /api/categories",
             "POST /api/categories",
+            "GET /api/categories/:id",
+            "PUT /api/categories/:id",
+            "DELETE /api/categories/:id",
+
             "GET /api/clients",
             "POST /api/clients",
+            "GET /api/clients/:id",
+            "PUT /api/clients/:id",
+            "DELETE /api/clients/:id",
+
             "GET /api/managers",
             "POST /api/managers",
+            "GET /api/managers/:id",
+            "PUT /api/managers/:id",
+            "DELETE /api/managers/:id",
+
             "GET /api/orders",
-            "POST /api/orders"
+            "POST /api/orders",
+            "GET /api/orders/:id",
+            "PUT /api/orders/:id",
+            "DELETE /api/orders/:id",
+
+            "GET /api/orderitems",
+            "POST /api/orderitems",
+            "GET /api/orderitems/:id",
+            "PUT /api/orderitems/:id",
+            "DELETE /api/orderitems/:id",
+
+            "GET /api/debug/db"
         ]
     });
 });

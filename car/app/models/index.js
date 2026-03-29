@@ -21,7 +21,8 @@ const db = {};
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
-db.cars = require("./car.model.js")(sequelize, Sequelize);
+db.motorcycles = require("./motorcycle.model.js")(sequelize, Sequelize);
+db.manufacturers = require("./manufacturer.model.js")(sequelize, Sequelize);
 db.categories = require("./category.model.js")(sequelize, Sequelize);
 db.clients = require("./client.model.js")(sequelize, Sequelize);
 db.managers = require("./manager.model.js")(sequelize, Sequelize);

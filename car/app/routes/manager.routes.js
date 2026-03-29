@@ -15,6 +15,20 @@ module.exports = app => {
      *   post:
      *     summary: Create a new manager
      *     tags: [Managers]
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             properties:
+     *               fullName:
+     *                 type: string
+     *               phone:
+     *                 type: string
+     *     responses:
+     *       201:
+     *         description: Manager created
      */
     router.post("/", managers.create);
 
@@ -24,6 +38,9 @@ module.exports = app => {
      *   get:
      *     summary: Get all managers
      *     tags: [Managers]
+     *     responses:
+     *       200:
+     *         description: List of managers
      */
     router.get("/", managers.findAll);
 
@@ -39,6 +56,11 @@ module.exports = app => {
      *         required: true
      *         schema:
      *           type: integer
+     *     responses:
+     *       200:
+     *         description: Manager found
+     *       404:
+     *         description: Manager not found
      */
     router.get("/:id", managers.findOne);
 
@@ -48,6 +70,26 @@ module.exports = app => {
      *   put:
      *     summary: Update manager by ID
      *     tags: [Managers]
+     *     parameters:
+     *       - in: path
+     *         name: id
+     *         required: true
+     *         schema:
+     *           type: integer
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             properties:
+     *               fullName:
+     *                 type: string
+     *               phone:
+     *                 type: string
+     *     responses:
+     *       200:
+     *         description: Manager updated
      */
     router.put("/:id", managers.update);
 
@@ -57,6 +99,15 @@ module.exports = app => {
      *   delete:
      *     summary: Delete manager by ID
      *     tags: [Managers]
+     *     parameters:
+     *       - in: path
+     *         name: id
+     *         required: true
+     *         schema:
+     *           type: integer
+     *     responses:
+     *       200:
+     *         description: Manager deleted
      */
     router.delete("/:id", managers.delete);
 
@@ -66,6 +117,9 @@ module.exports = app => {
      *   delete:
      *     summary: Delete all managers
      *     tags: [Managers]
+     *     responses:
+     *       200:
+     *         description: All managers deleted
      */
     router.delete("/", managers.deleteAll);
 

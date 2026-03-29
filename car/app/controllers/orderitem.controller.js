@@ -4,9 +4,9 @@ const Op = db.Sequelize.Op;
 
 // Создание и сохранение новой позиции заказа
 exports.create = (req, res) => {
-    if (!req.body.salePrice || !req.body.orderNumber || !req.body.carCode) {
+    if (!req.body.salePrice || !req.body.orderNumber || !req.body.motorcycleCode) {
         res.status(400).send({
-            message: "Содержимое не может быть пустым! Поля salePrice, orderNumber и carCode обязательны."
+            message: "Содержимое не может быть пустым! Поля salePrice, orderNumber и motorcycleCode обязательны."
         });
         return;
     }
@@ -14,7 +14,7 @@ exports.create = (req, res) => {
     const orderItem = {
         salePrice: req.body.salePrice,
         orderNumber: req.body.orderNumber,
-        carCode: req.body.carCode
+        motorcycleCode: req.body.motorcycleCode
     };
 
     OrderItem.create(orderItem)
@@ -31,7 +31,7 @@ exports.create = (req, res) => {
 // Получение всех позиций заказа из базы данных
 exports.findAll = (req, res) => {
     OrderItem.findAll({ 
-        include: ["order", "car"]
+        include: ["order", "motorcycle"]
     })
     .then(data => {
         res.send(data);
@@ -48,7 +48,7 @@ exports.findOne = (req, res) => {
     const id = req.params.id;
 
     OrderItem.findByPk(id, { 
-        include: ["order", "car"]
+        include: ["order", "motorcycle"]
     })
     .then(data => {
         if (data) {
