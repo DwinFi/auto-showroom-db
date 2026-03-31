@@ -36,8 +36,6 @@ module.exports = app => {
    *     responses:
    *       200:
    *         description: Motorcycle found
-   *       404:
-   *         description: Motorcycle not found
    */
   router.get("/:id", motorcycles.findOne);
 
@@ -55,17 +53,16 @@ module.exports = app => {
    *             type: object
    *             required:
    *               - vin
-   *               - brand
    *               - model
    *               - year
    *               - color
    *               - condition
    *               - purchasePrice
    *               - engine_capacity
+   *               - manufacturerCode
+   *               - categoryCode
    *             properties:
    *               vin:
-   *                 type: string
-   *               brand:
    *                 type: string
    *               model:
    *                 type: string
@@ -93,7 +90,7 @@ module.exports = app => {
    * @swagger
    * /api/motorcycles/{id}:
    *   put:
-   *     summary: Update motorcycle by ID
+   *     summary: Update motorcycle
    *     tags: [Motorcycles]
    *     parameters:
    *       - in: path
@@ -101,36 +98,6 @@ module.exports = app => {
    *         required: true
    *         schema:
    *           type: integer
-   *     requestBody:
-   *       required: true
-   *       content:
-   *         application/json:
-   *           schema:
-   *             type: object
-   *             properties:
-   *               vin:
-   *                 type: string
-   *               brand:
-   *                 type: string
-   *               model:
-   *                 type: string
-   *               year:
-   *                 type: integer
-   *               color:
-   *                 type: string
-   *               condition:
-   *                 type: string
-   *               purchasePrice:
-   *                 type: number
-   *               engine_capacity:
-   *                 type: integer
-   *               categoryCode:
-   *                 type: integer
-   *               manufacturerCode:
-   *                 type: integer
-   *     responses:
-   *       200:
-   *         description: Motorcycle updated
    */
   router.put("/:id", motorcycles.update);
 
@@ -138,7 +105,7 @@ module.exports = app => {
    * @swagger
    * /api/motorcycles/{id}:
    *   delete:
-   *     summary: Delete motorcycle by ID
+   *     summary: Delete motorcycle
    *     tags: [Motorcycles]
    *     parameters:
    *       - in: path
@@ -146,9 +113,6 @@ module.exports = app => {
    *         required: true
    *         schema:
    *           type: integer
-   *     responses:
-   *       200:
-   *         description: Motorcycle deleted
    */
   router.delete("/:id", motorcycles.delete);
 
@@ -158,9 +122,6 @@ module.exports = app => {
    *   delete:
    *     summary: Delete all motorcycles
    *     tags: [Motorcycles]
-   *     responses:
-   *       200:
-   *         description: All motorcycles deleted
    */
   router.delete("/", motorcycles.deleteAll);
 
@@ -168,17 +129,8 @@ module.exports = app => {
    * @swagger
    * /api/motorcycles/{id}/category:
    *   get:
-   *     summary: Get category of a motorcycle
+   *     summary: Get motorcycle category
    *     tags: [Motorcycles]
-   *     parameters:
-   *       - in: path
-   *         name: id
-   *         required: true
-   *         schema:
-   *           type: integer
-   *     responses:
-   *       200:
-   *         description: Motorcycle category
    */
   router.get("/:id/category", motorcycles.getMotorcycleCategory);
 
@@ -186,17 +138,8 @@ module.exports = app => {
    * @swagger
    * /api/motorcycles/{id}/categoryname:
    *   get:
-   *     summary: Get category name of a motorcycle
+   *     summary: Get motorcycle category name
    *     tags: [Motorcycles]
-   *     parameters:
-   *       - in: path
-   *         name: id
-   *         required: true
-   *         schema:
-   *           type: integer
-   *     responses:
-   *       200:
-   *         description: Motorcycle category name
    */
   router.get("/:id/categoryname", motorcycles.getMotorcycleCategoryName);
 

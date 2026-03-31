@@ -1,6 +1,7 @@
 const db = require("../models");
 const Motorcycle = db.motorcycles;
 const Category = db.categories;
+const Manufacturer = db.manufacturers;
 const sequelize = db.sequelize;
 const { QueryTypes } = db.Sequelize;
 
@@ -8,7 +9,22 @@ const { QueryTypes } = db.Sequelize;
 
 exports.create = async (req, res) => {
   try {
-    const motorcycle = await Motorcycle.create(req.body);
+    const motorcycleData = { ...req.body };
+
+    // Если указан manufacturerCode — автоматически подставляем brand
+    if (motorcycleData.manufacturerCode) {
+      const manufacturer = await Manufacturer.findByPk(motorcycleData.manufacturerCode);
+
+      if (!manufacturer) {
+        return res.status(404).json({
+          message: "Производитель с указанным manufacturerCode не найден"
+        });
+      }
+
+      motorcycleData.brand = manufacturer.name;
+    }
+
+    const motorcycle = await Motorcycle.create(motorcycleData);
     res.status(201).json(motorcycle);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -42,8 +58,22 @@ exports.findOne = async (req, res) => {
 exports.update = async (req, res) => {
   try {
     const motorcycleCode = req.params.id;
+    const updateData = { ...req.body };
 
-    const result = await Motorcycle.update(req.body, {
+    // Если в обновлении указан manufacturerCode — автоматически обновляем brand
+    if (updateData.manufacturerCode) {
+      const manufacturer = await Manufacturer.findByPk(updateData.manufacturerCode);
+
+      if (!manufacturer) {
+        return res.status(404).json({
+          message: "Производитель с указанным manufacturerCode не найден"
+        });
+      }
+
+      updateData.brand = manufacturer.name;
+    }
+
+    const result = await Motorcycle.update(updateData, {
       where: { motorcycleCode }
     });
 
@@ -124,6 +154,7 @@ exports.getMotorcycleCategory = async (req, res) => {
     const motorcycle = await Motorcycle.findByPk(motorcycleCode, {
       include: {
         model: Category,
+        as: "category",
         attributes: ["categoryCode", "name"]
       }
     });

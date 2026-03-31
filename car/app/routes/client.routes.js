@@ -21,10 +21,15 @@ module.exports = app => {
      *         application/json:
      *           schema:
      *             type: object
+     *             required:
+     *               - fullName
+     *               - phone
      *             properties:
-     *               name:
+     *               fullName:
      *                 type: string
-     *               email:
+     *               phone:
+     *                 type: string
+     *               passportData:
      *                 type: string
      *     responses:
      *       201:
@@ -78,6 +83,17 @@ module.exports = app => {
      *           type: integer
      *     requestBody:
      *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             properties:
+     *               fullName:
+     *                 type: string
+     *               phone:
+     *                 type: string
+     *               passportData:
+     *                 type: string
      *     responses:
      *       200:
      *         description: Client updated
