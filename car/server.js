@@ -1,10 +1,18 @@
 require('dotenv').config();
 const express = require("express");
+const cors = require("cors"); // 🔥 ДОБАВИЛ
 const swaggerUi = require("swagger-ui-express");
 const swaggerJsDoc = require("swagger-jsdoc");
 
 const app = express();
 const PORT = process.env.PORT || 8080;
+
+// 🔥 CORS настройка
+app.use(cors({
+    origin: "*", // можно потом ограничить
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type"]
+}));
 
 // Middleware
 app.use(express.json());
@@ -46,11 +54,6 @@ const initializeDatabase = async () => {
     try {
         console.log("🔄 Loading database models...");
         db = require("./app/models");
-        console.log("✅ Database models loaded");
-        console.log(
-            "📋 Loaded models:",
-            Object.keys(db).filter(key => !['Sequelize', 'sequelize'].includes(key))
-        );
 
         await db.sequelize.authenticate();
         console.log("✅ Database connection established");
@@ -65,7 +68,7 @@ const initializeDatabase = async () => {
     }
 };
 
-// Регистрация маршрутов
+// Routes
 require("./app/routes/motorcycle.routes")(app);
 require("./app/routes/manufacturer.routes")(app);
 require("./app/routes/category.routes")(app);
@@ -75,76 +78,17 @@ require("./app/routes/order.routes")(app);
 require("./app/routes/orderitem.routes")(app);
 require("./app/routes/debug.routes")(app);
 
-// Главная страница
+// Главная
 app.get("/", (req, res) => {
     res.json({
-        message: "Добро пожаловать в мотосалон!",
-        status: "Online",
-        database: db ? "Connected" : "Disconnected",
-        swagger_docs: `http://localhost:${PORT}/api-docs`,
-        available_endpoints: [
-            "GET /api/motorcycles",
-            "POST /api/motorcycles",
-            "GET /api/motorcycles/:id",
-            "PUT /api/motorcycles/:id",
-            "DELETE /api/motorcycles/:id",
-            "GET /api/motorcycles/:id/category",
-            "GET /api/motorcycles/:id/categoryname",
-
-            "GET /api/manufacturers",
-            "POST /api/manufacturers",
-            "GET /api/manufacturers/:id",
-            "PUT /api/manufacturers/:id",
-            "DELETE /api/manufacturers/:id",
-
-            "GET /api/categories",
-            "POST /api/categories",
-            "GET /api/categories/:id",
-            "PUT /api/categories/:id",
-            "DELETE /api/categories/:id",
-
-            "GET /api/clients",
-            "POST /api/clients",
-            "GET /api/clients/:id",
-            "PUT /api/clients/:id",
-            "DELETE /api/clients/:id",
-
-            "GET /api/managers",
-            "POST /api/managers",
-            "GET /api/managers/:id",
-            "PUT /api/managers/:id",
-            "DELETE /api/managers/:id",
-
-            "GET /api/orders",
-            "POST /api/orders",
-            "GET /api/orders/:id",
-            "PUT /api/orders/:id",
-            "DELETE /api/orders/:id",
-
-            "GET /api/orderitems",
-            "POST /api/orderitems",
-            "GET /api/orderitems/:id",
-            "PUT /api/orderitems/:id",
-            "DELETE /api/orderitems/:id",
-
-            "GET /api/debug/db"
-        ]
+        message: "Мотосалон API работает",
+        swagger: `http://localhost:${PORT}/api-docs`
     });
 });
 
-// Start server
-console.log("🚀 Starting server initialization...");
-initializeDatabase().then((database) => {
-    if (database) {
-        app.listen(PORT, '0.0.0.0', () => {
-            console.log(`🎉 Сервер запущен на порту ${PORT}`);
-            console.log(`📍 Основной URL: http://localhost:${PORT}`);
-            console.log(`📘 Swagger: http://localhost:${PORT}/api-docs`);
-        });
-    } else {
-        console.log("❌ Server started WITHOUT database connection");
-        app.listen(PORT, '0.0.0.0', () => {
-            console.log(`⚠️ Server is running on port ${PORT} (NO DATABASE)`);
-        });
-    }
+// Start
+initializeDatabase().then(() => {
+    app.listen(PORT, () => {
+        console.log(`🚀 Server: http://localhost:${PORT}`);
+    });
 });
